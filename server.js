@@ -12,12 +12,14 @@ var UserSchema = new Schema({
     password: String,
     role:String
 })
-var UserModel = mongoose.model("UserData", UserSchema);
 
+var UserModel = mongoose.model("UserData", UserSchema);
+var CategoryModel = require('./category');
 
 mongoose.connect(`mongodb://${process.env.MONGO_URL ||
 "localhost"}/node-crud-api`, {
 });
+ 
 
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
@@ -26,7 +28,7 @@ var port = process.env.PORT || 8000
 var router = express.Router()
 
 router.use('/', function (req, res, next) {
-    console.log(' Middleware .... ')
+    console.log(' Выполните запрос .... ')
     next()
 })
 
@@ -62,8 +64,28 @@ router.route('/user')
             .catch(err => {
                 return res.status(400).json({ message: 'Ошибка: ' + err })
             })
-    })
+    });
 
+router.route('/category')
+    .get(function (req, res) {
+        
+            const saveResult = CategoryModel.find()
+            .then(doc => {
+                if(doc){
+                    return res.status(201).json({ success: doc })
+                }
+                else{
+                    CategoryModel.addCategory();
+                }
+                
+            })
+            .catch(err => {
+                return res.status(400).json({ message: 'Ошибка: ' + err })
+            })
+        }
+        
+        
+    );
 /*router.route('/products/:product_id')
     .get(function (req, res) {
         const saveResult = ProductModel.findById(req.params.product_id)
